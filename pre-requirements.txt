@@ -4,4 +4,5 @@ pycparser
 idna
 requests
 enum34
+pyasn1
 cryptography
