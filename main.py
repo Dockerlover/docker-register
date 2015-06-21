@@ -57,11 +57,10 @@ def refresh_containers(containers):
       _prefix = '/services/'+container_name
       client.write(_prefix+'/image', container_image)
       client.write(_prefix+'/status', container_status)
+      _prefix = _prefix+"/ports"
       for port in service_ports:
-        _prefix = _prefix+"/ports"
-        client.write(_prefix+'/port', port.get("public_port"))
-        client.write(_prefix+'/type', port.get("type"))
-        client.write(_prefix+'/ip', DOCKER_HOST)
+        port_prefix = _prefix+"/"+DOCKER_HOST+":"+port.get("public_port")
+        client.write(port_prefix+'/type', port.get("type"))
     
   return containers
 
