@@ -76,6 +76,8 @@ def refresh_containers(containers):
   return containers
 
 if __name__ == "__main__":
+    host, port = get_etcd_addr()
+    client = etcd.Client(host=host, port=int(port))
     services = client.write('/services', dir = True)
     while True:
         try:
