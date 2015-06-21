@@ -54,7 +54,7 @@ def refresh_containers(containers):
       })
       if(port_public_port != None):
         has_public_port = True
-        service_ports..append({
+        service_ports.append({
           "public_port":port_public_port,
           "type":port_type,
           "private_port":port_private_port 
