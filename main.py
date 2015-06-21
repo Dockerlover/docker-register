@@ -11,7 +11,7 @@ def get_images():
   
 def get_containers():
   c = Client(base_url='unix://var/run/docker.sock')
-  containers = c.containers(all=true)
+  containers = c.containers(all=True)
   return containers
 
 def refresh_containers(containers):
