@@ -2,6 +2,11 @@
 FROM docker-python
 # 维护人员
 MAINTAINER  liuhong1.happy@163.com
+# 创建Docker配置文件路径
+RUN touch /var/run/docker.sock
+ENV DOCKER_HOST unix:///var/run/docker.sock
+VOLUME ["/var/run"]
+
 # 复制代码
 COPY . /code
 # 安装依赖包
