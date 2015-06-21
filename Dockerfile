@@ -7,6 +7,8 @@ RUN apt-get install -y libssl-dev libffi-dev
 # 创建Docker配置文件路径
 RUN touch /var/run/docker.sock
 ENV DOCKER_HOST unix:///var/run/docker.sock
+ENV HOST_IP 127.0.0.1
+ENV ETCD_HOST 127.0.0.1:4001
 VOLUME ["/var/run","/code"]
 
 # 复制代码
