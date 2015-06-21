@@ -64,9 +64,10 @@ def refresh_containers(containers):
     
     if(port_public_port and container_name!=None):
       _prefix = '/services/'+container_name
+      client.write(_prefix, None, dir = True)
       client.write(_prefix+'/image', container_image)
       client.write(_prefix+'/status', container_status)
-      client.write(_prefix+'/ports', dir = True)
+      client.write(_prefix+'/ports', None, dir = True)
       for port in service_ports:
         _prefix = _prefix+"/ports"
         client.write(_prefix+'/port', port.get("public_port"))
@@ -78,7 +79,7 @@ def refresh_containers(containers):
 if __name__ == "__main__":
     host, port = get_etcd_addr()
     client = etcd.Client(host=host, port=int(port))
-    services = client.write('/services', dir = True)
+    services = client.write('/services',None, dir = True)
     while True:
         try:
             containers = get_containers()
