@@ -15,9 +15,9 @@ Docker化etcd register
 
 - 测试容器
 
-        docker run -it  --name register --rm  docker-register /bin/bash
+        docker run -it  --name register --rm  docker-register -v /var/run:/var/run /bin/bash
         python main.py
 
 - 运行容器
 
-        docker run -it  -d --name register  docker-register
+        docker run -it  -d --name register -v /var/run:/var/run docker-register
