@@ -11,6 +11,7 @@ VOLUME ["/var/run"]
 
 # 复制代码
 COPY . /code
+WORKDIR /code
 # 安装依赖包
 RUN pip install -r pre-requirements.txt
 RUN pip install -r requirements.txt
