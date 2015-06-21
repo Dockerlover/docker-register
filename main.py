@@ -19,7 +19,6 @@ def refresh_containers(containers):
   return containers
   
 def container_changed():
-  # 发送最新更新时间，以便做好记录
   pass
   
 
