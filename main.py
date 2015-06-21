@@ -43,22 +43,17 @@ def refresh_containers(containers):
     container_status = container.get("Status",None)
     container_ports = container.get("Ports",[])
     service_ports = []
-    ports = []
     has_public_port = False
     for port in container_ports:
-      port_public_port = port.get("PublicPort",None)
-      port_private_port = port.get("PrivatePort",None)
-      port_type = port.get("Type",None)
-
-      if(port_public_port != None):
+      if(port.get("PublicPort",None) != None):
         has_public_port = True
         service_ports.append({
-          "public_port":port_public_port,
-          "type":port_type,
-          "private_port":port_private_port 
+          "public_port":port.get("PublicPort",None),
+          "type":port.get("Type",None),
+          "private_port":port.get("PrivatePort",None) 
         })
     
-    if(port_public_port!=None and container_name!=None):
+    if(has_public_port and container_name!=None):
       _prefix = '/services/'+container_name
       client.write(_prefix+'/image', container_image)
       client.write(_prefix+'/status', container_status)
