@@ -1,3 +1,2 @@
-cryptography
 docker-py
 python-etcd
