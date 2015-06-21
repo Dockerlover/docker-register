@@ -17,25 +17,17 @@ def get_containers():
 def refresh_containers(containers):
   print containers
   return containers
-  
-def container_changed():
-  pass
-  
 
 if __name__ == "__main__":
-    current_containers = {}
     while True:
         try:
             containers = get_containers()
 
-            if not containers or containers == current_containers:
+            if containers:
+                print "containers refreshed. "
                 refresh_containers(containers)
                 time.sleep(POLL_TIMEOUT)
                 continue
-
-            print "containers changed. reload haproxy"
-            container_changed()
-            current_containers = containers
 
         except Exception, e:
             print "Error:", e
