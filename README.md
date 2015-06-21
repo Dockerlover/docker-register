@@ -3,7 +3,7 @@ Docker化etcd register
 
 ## 镜像特点
 
-- 2015/6/21 继承基础镜像docker-ubuntu
+- 2015/6/21 继承基础镜像docker-python
 
 ## 使用方法
 
