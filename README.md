@@ -15,7 +15,12 @@ Docker化etcd register
 
 - 测试容器
 
-        docker run -it  --name register --rm  docker-register -v /var/run:/var/run /bin/bash
+        HOST_IP=$(hostname --all-ip-addresses | awk '{print $1}')
+        
+        docker run -it  --name register --rm  docker-register \
+        -e ETCD_HOST=127.0.0.1:4001 -e HOST_IP=$HOST_IP  \
+        -v /var/run:/var/run /bin/bash
+        
         python main.py
 
 - 运行容器
