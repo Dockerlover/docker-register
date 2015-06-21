@@ -35,7 +35,7 @@ if __name__ == "__main__":
 
             print "containers changed. reload haproxy"
             container_changed()
-            current_services = services
+            current_containers = containers
 
         except Exception, e:
             print "Error:", e
