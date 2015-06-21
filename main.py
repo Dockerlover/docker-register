@@ -4,12 +4,12 @@ import time
 
 POLL_TIMEOUT=5
 
-def get_imagess:
+def get_images():
   c = Client(base_url='unix://var/run/docker.sock')
   images = c.images()
   return images
   
-def get_containers:
+def get_containers():
   c = Client(base_url='unix://var/run/docker.sock')
   containers = c.containers(all=true)
   return containers
@@ -18,8 +18,9 @@ def refresh_containers(containers):
   print containers
   return containers
   
-def container_changed:
+def container_changed():
   # 发送最新更新时间，以便做好记录
+  pass
   
 
 if __name__ == "__main__":
