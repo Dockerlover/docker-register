@@ -6,3 +6,6 @@ requests
 enum34
 pyasn1
 cryptography
+backports.ssl-match-hostname
+pyOpenSSL
+websocket-client
