@@ -1,0 +1,7 @@
+ipaddress
+cffi
+pycparser
+idna
+requests
+enum34
+cryptography
