@@ -12,8 +12,8 @@ VOLUME ["/var/run"]
 # 复制代码
 COPY . /code
 # 安装依赖包
-COPY requirements.txt requirements.txt
-RUN  pip install -r requirements.txt
+RUN pip install -r pre-requirements.txt
+RUN pip install -r requirements.txt
 # 配置supervisord
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 # 启动supervisord
