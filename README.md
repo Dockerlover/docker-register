@@ -15,8 +15,8 @@ Docker化etcd register
 
 - 测试容器
 
-        docker run -it  --name python  docker-python
+        docker run -it  --name python  docker-register
 
 - 运行容器
 
-        docker run -it  -d --name python  docker-python
+        docker run -it  -d --name python  docker-register
