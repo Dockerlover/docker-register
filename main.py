@@ -2,7 +2,7 @@ from docker import Client
 import etcd
 import time
 
-POLL_TIMEOUT=5
+POLL_TIMEOUT=60
 
 def get_images():
   c = Client(base_url='unix://var/run/docker.sock')
