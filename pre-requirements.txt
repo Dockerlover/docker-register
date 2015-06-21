@@ -5,3 +5,4 @@ idna
 requests
 enum34
 cryptography
+requests
