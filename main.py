@@ -30,10 +30,12 @@ def get_etcd_addr():
   return host,port
 
 def refresh_containers(containers):
-  services = client.get('/services')
-  print services
+
   host, port = get_etcd_addr()
   client = etcd.Client(host=host, port=int(port))
+  
+  services = client.get('/services')
+  print services
   
   for container in containers:
     container_name = container.get("Id",None)
