@@ -24,6 +24,11 @@ Docker化etcd register
         
         python main.py
 
-- 运行容器
+- 运行容器[run.sh]
 
-        docker run -it  -d --name register -v /var/run:/var/run docker-register
+        HOST_IP=$(hostname --all-ip-addresses | awk '{print $1}')
+        ETCD_HOST=$HOST_IP:4001
+        
+        docker run -it  -d --name register \
+        -e ETCD_HOST=$ETCD_HOST -e HOST_IP=$HOST_IP  \
+        -v /var/run:/var/run docker-register
