@@ -55,9 +55,11 @@ def refresh_containers(containers):
     
     if(has_public_port and container_name!=None):
       _prefix = '/services/'+container_name
+      client.write(_prefix, None,dir=True, ttl=3000)
       client.write(_prefix+'/image', container_image, ttl=3000)
       client.write(_prefix+'/status', container_status, ttl=3000)
       _prefix = _prefix+"/ports"
+      client.write(_prefix, None,dir=True, ttl=3000)
       for port in service_ports:
         port_prefix = _prefix+"/"+HOST_IP+":"+str(port.get("public_port",""))
         client.write(port_prefix+'/type', port.get("type"), ttl=3000)
