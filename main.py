@@ -18,6 +18,16 @@ def get_containers():
   containers = c.containers(all=True)
   return containers
 
+def get_container_info(container_id):
+  c = Client(base_url=DOCKER_HOST)
+  container = c.inspect_container(container_id)
+  return container
+
+def get_image_info(image_id):
+  c = Client(base_url=DOCKER_HOST)
+  image = c.inspect_image(image_id)
+  return image
+
 def get_etcd_addr():
   etcd_host = os.environ["ETCD_HOST"]
   
@@ -29,52 +39,86 @@ def get_etcd_addr():
   
   return host,port
 
-def refresh_containers(containers):
+def refresh_container(container_id,container):
+  container_state =  container.get("State",{"Running",False})
+  container_running = container_state.get("Running",False)
+  container_start_dt = container_state.get("StartedAt,"")
+  container_image_id = container.get("Image","")
+  
+  client.write('/containers/'+container_id,
+    "/"+container_image_id+"/"+str(container_running)+"/"+container_start_dt,
+    ttl=3000 )
+  
+  return container
+  
+def refresh_image(image_id,image):
+  container_id = image.get("Container","")
+  image_size = image.get("Size","")
+  image_create_dt = image.get("Created","")
+  
+  client.write('/images/'+image_id, 
+    "/"+container_id+"/"+str(image_size)+"/"+image_create_dt, 
+    ttl=3000 )
+  return image
 
+def refresh_service(container_id,image_id,container_info,container):
+  container_config = container_info.get("Config",None)
+  image_name = container_config.get("Image","")
+  container_env = container_config.get("Env","")
+  service_id = container_env.get("SERVICE_ID",None)
+  
+  if(service_id==None): 
+    print "Error:No Service Id In Container["+DOCKER_HOST+":"+container_id+"]!"
+    return
+
+  user_name = container_env("USER_NAME","admin")
+  container_state =  contianer.get("State",{"Running",False})
+  container_running = container_state.get("Running",False)
+  
+  
+  container_ports = container.get("Ports",[])
+  service_ports = []
+  has_public_port = False
+  for port in container_ports:
+    if(port.get("PublicPort",None) != None):
+      has_public_port = True
+      service_ports.append({
+        "public_port":port.get("PublicPort",""),
+        "type":port.get("Type",""),
+        "private_port":port.get("PrivatePort","") 
+      })
+  
+  container_ports = ""
+  if(has_public_port):
+    p_i = 0
+    for port in service_ports:
+        container_ports +="/" port.get("type","")+":"+DOCKER_HOST+":"+port.get("public_port","")+":"+port.get("private_port","")
+  if container_ports=="":
+    container_ports = "/"
+  
+  client.write('/services/'+user_name+'/'+service_id, 
+    '/'+DOCKER_HOST+'/'+image_name"/"+image_id+"/"+container_id+"/"+str(container_running)+container_ports, 
+    ttl=3000 )
+  
+  return container
+  
+  
+def refresh(containers):
   host, port = get_etcd_addr()
   client = etcd.Client(host=host, port=int(port))
   
-  # services = client.read('/services')
-  # print services
-  
   for container in containers:
-    container_name = container.get("Id",None)
-    container_image = container.get("Image",None)
-    container_status = container.get("Status",None)
-    container_ports = container.get("Ports",[])
-    service_ports = []
-    has_public_port = False
-    for port in container_ports:
-      if(port.get("PublicPort",None) != None):
-        has_public_port = True
-        service_ports.append({
-          "public_port":port.get("PublicPort",None),
-          "type":port.get("Type",None),
-          "private_port":port.get("PrivatePort",None) 
-        })
+    container_id = container.get("Id",None)
+    if(container_id==None) continue
+    container_info = get_container_info(container_id)
     
-    if(has_public_port and container_name!=None):
-      _prefix = '/services/'+container_name
-      print '[Info print prefix]'+_prefix
-      
-      try:
-        client.read(_prefix)
-      except KeyError:
-        client.write(_prefix, None, dir=True)
-        
-      client.write(_prefix+'/image', container_image, ttl=3000)
-      client.write(_prefix+'/status', container_status, ttl=3000)
-      _prefix = _prefix+"/ports"
-      
-      try:
-        client.read(_prefix)
-      except KeyError:
-        client.write(_prefix, None, dir=True)
-
-      print '[Info print prefix]'+_prefix
-      for port in service_ports:
-        port_prefix = _prefix+"/"+HOST_IP+":"+str(port.get("public_port",""))
-        client.write(port_prefix+'/type', port.get("type"), ttl=3000)
+    image_id = container_info.get("Image",None)
+    if(image_id==None) continue
+    image_info = get_image_info(image_id)
+    
+    refresh_container(container_id,image_id,container_info)
+    refresh_image(image_id,image_info)
+    refresh_service(container_id,image_id,container_info,container)
     
   return containers
 
@@ -84,13 +128,12 @@ if __name__ == "__main__":
     while True:
         try:
             containers = get_containers()
-            
             if containers:
                 print "containers refreshed. "
-                refresh_containers(containers)
+                refresh(containers)
                 time.sleep(POLL_TIMEOUT)
                 continue
-
+        
         except Exception, e:
             print "Error:", e
 
