@@ -96,9 +96,7 @@ def refresh_service(container_id,image_id,container_info,container):
   if container_ports=="":
     container_ports = "/"
   
-  client.write('/services/'+user_name+'/'+service_id, 
-    '/'+DOCKER_HOST+'/'+image_name"/"+image_id+"/"+container_id+"/"+str(container_running)+container_ports, 
-    ttl=3000 )
+  client.write('/services/'+user_name+'/'+service_id+'/'+container_id, container_ports, ttl=3000 )
   
   return container
   
