@@ -92,7 +92,7 @@ def refresh_service(container_id,image_id,container_info,container):
   if(has_public_port):
     p_i = 0
     for port in service_ports:
-        container_ports +="/" port.get("type","")+":"+HOST_IP+":"+port.get("public_port","")+":"+port.get("private_port","")
+        container_ports +="/" + port.get("type","")+":"+HOST_IP+":"+port.get("public_port","")+":"+port.get("private_port","")
   if container_ports=="":
     container_ports = "/"
   
@@ -107,11 +107,13 @@ def refresh(containers):
   
   for container in containers:
     container_id = container.get("Id",None)
-    if(container_id==None) continue
+    if(container_id==None):
+      continue
     container_info = get_container_info(container_id)
     
     image_id = container_info.get("Image",None)
-    if(image_id==None) continue
+    if(image_id==None):
+      continue
     image_info = get_image_info(image_id)
     
     refresh_container(container_id,image_id,container_info)
