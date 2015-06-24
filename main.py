@@ -42,7 +42,7 @@ def get_etcd_addr():
 def refresh_container(container_id,container):
   container_state =  container.get("State",{"Running",False})
   container_running = container_state.get("Running",False)
-  container_start_dt = container_state.get("StartedAt,"")
+  container_start_dt = container_state.get("StartedAt","")
   container_image_id = container.get("Image","")
   
   client.write('/containers/'+container_id,
