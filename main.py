@@ -28,6 +28,13 @@ def get_image_info(image_id):
   image = c.inspect_image(image_id)
   return image
 
+def get_container_env(envs):
+  res_envs = {}
+  for env in envs:
+    name,value = env.split("=")
+    res_envs[name] = value
+  return res_envs
+
 def get_etcd_addr():
   etcd_host = os.environ["ETCD_HOST"]
   
@@ -39,14 +46,14 @@ def get_etcd_addr():
   
   return host,port
 
-def refresh_container(container_id,container):
+def refresh_container(container_id,image_id,container):
   container_state =  container.get("State",{"Running",False})
   container_running = container_state.get("Running",False)
   container_start_dt = container_state.get("StartedAt","")
-  container_image_id = container.get("Image","")
+  # container_image_id = container.get("Image","")
   
   client.write('/containers/'+container_id,
-    "/"+container_image_id+"/"+str(container_running)+"/"+container_start_dt,
+    "/"+image_id+"/"+str(container_running)+"/"+container_start_dt,
     ttl=3000 )
   
   return container
@@ -64,18 +71,19 @@ def refresh_image(image_id,image):
 def refresh_service(container_id,image_id,container_info,container):
   container_config = container_info.get("Config",None)
   image_name = container_config.get("Image","")
-  container_env = container_config.get("Env","")
-  service_id = container_env.get("SERVICE_ID",None)
+  envs = container_config.get("Env","")
+  container_envs = get_container_env(envs)
+  service_id = container_envs.get("SERVICE_ID",None)
   
   if(service_id==None): 
     print "Error:No Service Id In Container["+HOST_IP+":"+container_id+"]!"
     return
 
-  user_name = container_env("USER_NAME","admin")
-  container_state =  contianer.get("State",{"Running",False})
-  container_running = container_state.get("Running",False)
-  
-  
+  user_name = container_envs.get("USER_NAME","admin")
+  container_state =  container.get("State",set([False, 'Running']))
+
+  container_running = 'Running' in container_state
+
   container_ports = container.get("Ports",[])
   service_ports = []
   has_public_port = False
@@ -92,7 +100,7 @@ def refresh_service(container_id,image_id,container_info,container):
   if(has_public_port):
     p_i = 0
     for port in service_ports:
-        container_ports +="/" + port.get("type","")+":"+HOST_IP+":"+port.get("public_port","")+":"+port.get("private_port","")
+        container_ports +="/" + port.get("type","")+":"+HOST_IP+":"+str(port.get("public_port",""))+":"+str(port.get("private_port",""))
   if container_ports=="":
     container_ports = "/"
   
@@ -105,20 +113,31 @@ def refresh(containers):
   host, port = get_etcd_addr()
   client = etcd.Client(host=host, port=int(port))
   
+  print "Info:refresh method"
+  
   for container in containers:
     container_id = container.get("Id",None)
     if(container_id==None):
       continue
     container_info = get_container_info(container_id)
     
+    print "Info:get container info"
+    
     image_id = container_info.get("Image",None)
     if(image_id==None):
       continue
     image_info = get_image_info(image_id)
+    print "Info:get image info"
     
     refresh_container(container_id,image_id,container_info)
+    print "Info:refresh container"
+    
     refresh_image(image_id,image_info)
+    print "Info:refresh image"
+    
     refresh_service(container_id,image_id,container_info,container)
+    print "Info:refresh service"
+    
     
   return containers
 
